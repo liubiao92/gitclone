@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>vue 2</title>
+    </head>
+    <body>
+        <div id="app">
+            <p>
+                <input placeholder="只能输入数字 qq" v-bind:value="qq" v-on:input="actionInput">
+            </p>
+            <p>
+                <!-- 上面的 input 标签通过监听 input 事件, 然后在 input 里面改变 qq 的值, 最后通过 v-bind 更新页面的值
+                这种处理方式有点类似 react 的思路
+                实际上 vue 有一个更简单的做法, 直接用 v-model 指令, input 输入框里的 username 和 vue 实例里的 username 就会同步变化
+                即如果输入框的 username 发生变化, 则 vue 实例的 username 发生变化
+                并且如果 vue 实例的 username 发生变化, 那么输入框的 username 也会发生变化
+                这个特性叫双向数据绑定, 一般也称之为 mvvm 模型 -->
+                <input placeholder="用户名" v-model="username">
+            </p>
+            <p>
+                <!-- {{}} 里面可以使用 js 表达式, 类似 jsx 里面的 {} -->
+                <!-- 当 data 里的 qq 更新之后, {{ }} 内的 qq 也会自动更新 -->
+                用户输入的 QQ: {{ qq }}
+            </p>
+            <p>
+                用户输入的 username: {{ username }}
+            </p>
+            <button v-on:click="actionClick">click</button>
+            <ul>
+                <!-- v-for 指令是用来遍历数组(当然也可以遍历的对象)的, m 是 menus 的元素, i 是下标 -->
+                <li v-for="(m, i) in menus">
+                    {{ i }}, {{ m }}
+                </li>
+            </ul>
+        </div>
+
+        <!-- 引入 vue -->
+        <!-- 注意, 工作中并不是这样引入 vue 的, 我们先用最简单的方式引入, 之后会有复杂例子 -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+        <script>
+            const log = console.log.bind(console)
+
+            let app = new Vue({
+                el: '#app',
+
+                // data 是一个对象, 用来存储 vue 对象的数据, 相当于 react 的 state
+                // 需要注意的是, 在 html 里和 vue 实例里访问 data 属性值的时候, 直接访问, 不需要 this.state.qq 之类的写法
+                data: {
+                    qq: '123',
+                    username: 'gua',
+                    menus: [
+                        'home',
+                        'classroom',
+                        'arena',
+                        'questions',
+                    ]
+                },
+
+                methods: {
+                    actionInput: function(event) {
+                        // 获取用户输入的值
+                        let value = event.target.value
+                        log('用户输入的值是', value)
+                        this.qq = value
+                    },
+                    actionClick: function() {
+                        // 可以直接用 this.qq 获取当前输入框里的值
+                        // 如果多个方法需要通信, 一般会采用 data 里面的值来作为桥梁
+                        // 类似 react 中的 state, 在每个方法中都可以拿到 state 的值
+                        let qq = this.qq
+                        // 用了 v-model 之后, username 可以直接拿到
+                        let username = this.username
+                        log('qq and username', qq, username)
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>

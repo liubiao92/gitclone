@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>vue 3</title>
+        <style>
+            .message-container {
+                margin: 5px 0;
+                border: 1px dashed lightcoral;
+                text-align: left;
+            }
+
+            .message-container div {
+                padding-left: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="app">
+            <message name="gua"></message>
+            <message name="xiao gua"></message>
+            <!-- <button v-on:click="handleToggleTimer">开关 timer</button> -->
+            <!-- v-on:click 可以缩写成 @click, 在 vue 里面这样的缩写很常见, 多写写就会记下来 -->
+            <button @click="handleToggleTimer">开关 timer</button>
+            <!-- v-if 表示如果 showTimer 的值为 true, 那么就会渲染 timer 组件 -->
+            <!-- 组件会在后面描述 -->
+            <div v-if="showTimer">
+                <timer></timer>
+            </div>
+            <markdown-editor></markdown-editor>
+        </div>
+
+        <!-- 引入 vue -->
+        <!-- 注意, 工作中并不是这样引入 vue 的, 我们先用最简单的方式引入, 之后会有复杂例子 -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+        <script src="https://unpkg.com/marked@0.3.6"></script>
+        <script>
+            const log = console.log.bind(console)
+
+            // 使用 Vue.component 可以定义一个组件, 第一个参数是组件的名称
+            // 定义组件之后可以直接在 html 里面使用
+            Vue.component('message', {
+                // props 用来指定组件可以接收哪些属性
+                // 在 html 中使用组件的时候可以直接通过 name="xxx" 传递值
+                // 传递的值可以在组件内部使用
+                // props 类似 react 组件的 props
+                props: ['name'],
+                // template 的值是一个 html 格式的字符串
+                // 这个字符串会替换掉组件, 也就是 <message></message> 组件的内容会换成 template 的值
+                // 注意 template 里面的变量可以从 props 中获取
+                template: `
+                    <div class="message-container">
+                        <div>Hello {{ name }}</div>
+                        <div>大写 {{ name.toUpperCase() }}</div>
+                    </div>
+                `,
+            })
+
+            Vue.component('timer', {
+                // 组件中依然可以使用 data 这个属性, 但是 data 的值不能是一个对象
+                // 必须是一个函数, 然后在函数内部返回一个对象, 用来表示组件内部的数据
+                // 依然类似 react 组件的 state
+                data: function() {
+                    return {
+                        secondsElapsed: 0,
+                    }
+                },
+                template: `
+                    <div>
+                        启动时间: {{ secondsElapsed }}
+                    </div>
+                `,
+                methods: {
+                    tick: function() {
+                        // 每次调用 tick 方法都会让 secondsElapsed 增加 1
+                        this.secondsElapsed += 1
+                    }
+                },
+                // created 是实例创建完成后会被调用的方法
+                // 类似 react 中的 componentDidMount
+                created: function() {
+                    console.log('定时器组件 did mount')
+                    console.log('this in created', this)
+                    this.interval = setInterval(() => this.tick(), 1000)
+                },
+                // destroyed 表示实例销毁后会被调用的方法
+                // 类似 react 中的 componentWillUnmount
+                destroyed: function() {
+                    console.log('定时器组件 will unmount')
+                    console.log('this in destroyed', this)
+                    clearInterval(this.interval)
+                },
+            })
+
+            Vue.component('markdown-editor', {
+                data: function() {
+                    return {
+                        mdString: '输入 *markdown 语法* 就能看到效果',
+                    }
+                },
+                // template 中使用了 v-html 这个指令, 是用来设置元素的 innerHTML 属性的
+                // 每次都会将 getRawMarkup 函数的返回值设置为 innerHTML 的值
+                template: `
+                    <div className="MarkdownEditor">
+                        <h1>markdown 编辑器</h1>
+                        <h3>原始 md 文本</h3>
+                        <textarea v-model="mdString"></textarea>
+                        <h3>结果预览</h3>
+                        <div class="content" v-html="getRawMarkup()"></div>
+                    </div>
+                `,
+                methods: {
+                    getRawMarkup: function() {
+                        // 因为 textarea 使用了 v-model 指令
+                        // 所以当 mdString 发生变化的时候, getRawMarkup 方法中可以获取用户输入的 mdString 值
+                        // marked 方法用来把一个 markdown 字符串转成 html 格式的字符串入
+                        console.log('this in markdown-editor', this)
+                        return marked(this.mdString)
+                    },
+                },
+            })
+
+            let app = new Vue({
+                el: '#app',
+                data: {
+                    showTimer: true,
+                },
+                methods: {
+                    // 切换 showTimer 属性的值
+                    handleToggleTimer: function() {
+                        this.showTimer = !this.showTimer
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>

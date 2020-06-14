@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>vue 1</title>
+    </head>
+    <body>
+        <div id="app">
+            <h1>下面有一个 input 标签</h1>
+
+            <!-- 初始化 vue 实例的时候制定了 el 的值是 #app, 所以可以在 #app 元素内部使用 vue 语法 -->
+
+            <!-- 以 v- 开头的属性(其实应该是 attribute, 不过无所谓, 大家都混用)称之为 指令 -->
+            <!-- 我们使用了 v-bind 和 v-on 两个指令 -->
+            <!-- v-bind 的意思是动态计算 attribute 的值, 也就是 value 后面的 qq 会动态计算 -->
+            <!-- v-on 是用来绑定事件的, 这里绑定的是 input 事件, 也就是说触发 input 事件的时候, 会触发 methods 里的 actionInput 方法, 并且 actionInput 的默认参数是 event 对象 -->
+            <input placeholder="只能输入数字 qq" v-bind:value="qq" v-on:input="actionInput">
+
+            <!-- {{}} 里面可以使用 js 表达式, 类似 jsx 里面的 {} -->
+            <!-- 当 data 里的 qq 更新之后, {{ }} 内的 qq 也会自动更新 -->
+            用户输入的 QQ: {{ qq }}
+            <br>
+            <button v-on:click="actionClick">click</button>
+        </div>
+
+        <!-- 引入 vue -->
+        <!-- 注意, 工作中并不是这样引入 vue 的, 我们先用最简单的方式引入, 之后会有复杂例子 -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.10/dist/vue.js"></script>
+        <script>
+            // 定义我们自己的 log 函数
+            const log = console.log.bind(console)
+
+            // new 一个 Vue 实例时, 需要传入一个对象参数
+            let app = new Vue({
+                // el 表示 vue 实例会挂载到这个元素, el 的值是一个 css 选择器
+                // el 是个非常糟糕的拼写, 典型的穷人病
+                // 挂载就是 mount, 类似 react, 简单来说就是 vue 只在 #app 这个元素的范围内才能起作用
+                el: '#app',
+
+                // data 是一个对象, 用来存储 vue 对象的数据, 相当于 react 的 state
+                // 需要注意的是, 在 html 里和 vue 实例里访问 data 属性值的时候, 直接访问, 不需要 this.state.qq 之类的写法
+                data: {
+                    qq: '123',
+                },
+
+                // methods 定义的方法, 在 html 中可以直接调用
+                methods: {
+                    // 注意, methods 里不要使用箭头函数的形式定义方法
+                    // 在 html 里面绑定了 actionInput 方法, 会在触发 input 事件的时候调用
+                    actionInput: function(event) {
+                        // 获取用户输入的值
+                        let value = event.target.value
+                        log('用户输入的值是', value)
+                        // 把这个值复制给 this.qq
+                        // this 表示 vue 实例, 直接用 this.qq 就可以访问 data 里的 qq
+                        // 更新 qq 之后, html 中所有用到 qq 的地方都会自动更新
+                        // 有点类似 react 中 state 更新之后会自动调用 render 方法
+                        this.qq = value
+                    },
+                    actionClick: function() {
+                        // 可以直接用 this.qq 获取当前输入框里的值
+                        // 如果多个方法需要通信, 一般会采用 data 里面的值来作为桥梁
+                        // 类似 react 中的 state, 在每个方法中都可以拿到 state 的值
+                        let value = this.qq
+                        // 拿到值之后就可以进行操作, 比如判断、发送数据等
+                        log('value in click', value)
+                    }
+                }
+            })
+        </script>
+    </body>
+</html>
